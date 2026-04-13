@@ -1,8 +1,13 @@
 import type { Metadata } from "next";
 // import { Geist, Geist_Mono } from "next/font/google";
-import { Inter} from "next/font/google";
+import { Inter, Geist } from "next/font/google";
 
 import "./globals.css";
+import ThemeProvider from "@/context/Theme";
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -15,14 +20,15 @@ import "./globals.css";
 // });
 
 const inter = Inter({
-  subsets: ['latin'],
-})
+  subsets: ["latin"],
+});
 export const metadata: Metadata = {
   title: "Dev Fllow",
-  description: "A community-driven platform for asking and answering programming questions. Get help, share knowledge, and collaborate with developers from around the world. Explore topics in web development, mobile app development, algorithms, data structures, and more.",
+  description:
+    "A community-driven platform for asking and answering programming questions. Get help, share knowledge, and collaborate with developers from around the world. Explore topics in web development, mobile app development, algorithms, data structures, and more.",
   icons: {
     icon: "/images/site-logo.svg",
-  }
+  },
 };
 
 export default function RootLayout({
@@ -31,11 +37,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${inter.className} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="en" className={cn("h-full", "antialiased", "suppressHydrationWarning", inter.className, "font-sans", geist.variable)}>
+      <body className="min-h-full flex flex-col">
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>{children}</ThemeProvider>
+      </body>
     </html>
   );
 }
