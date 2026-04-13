@@ -5,19 +5,9 @@ import { Inter, Geist } from "next/font/google";
 import "./globals.css";
 import ThemeProvider from "@/context/Theme";
 import { cn } from "@/lib/utils";
+import Navbar from "@/components/naviction/navbar";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
-
-
-// const geistSans = Geist({
-//   variable: "--font-geist-sans",
-//   subsets: ["latin"],
-// });
-
-// const geistMono = Geist_Mono({
-//   variable: "--font-geist-mono",
-//   subsets: ["latin"],
-// });
 
 const inter = Inter({
   subsets: ["latin"],
@@ -39,7 +29,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn("h-full", "antialiased", "suppressHydrationWarning", inter.className, "font-sans", geist.variable)}>
       <body className="min-h-full flex flex-col">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>{children}</ThemeProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <Navbar />
+          {children}</ThemeProvider>
       </body>
     </html>
   );
