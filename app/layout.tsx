@@ -5,9 +5,11 @@ import { Inter, Geist } from "next/font/google";
 import "./globals.css";
 import ThemeProvider from "@/context/Theme";
 import { cn } from "@/lib/utils";
-import Navbar from "@/components/naviction/navbar";
+import { Toaster } from "@/components/ui/sonner";
+import { SessionProvider } from "next-auth/react";
+import { auth } from "@/auth";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 const inter = Inter({
   subsets: ["latin"],
@@ -21,18 +23,37 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+  const session = await auth();
   return (
-    <html lang="en" className={cn("h-full", "antialiased", "suppressHydrationWarning", inter.className, "font-sans", geist.variable)}>
-      <body className="min-h-full flex flex-col">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <Navbar />
-          {children}</ThemeProvider>
-      </body>
+    <html
+      lang="en"
+      className={cn(
+        "antialiased",
+        "suppressHydrationWarning",
+        inter.className,
+        "font-sans",
+        geist.variable,
+      )}
+    >
+      <SessionProvider session={session}>
+        <body>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
+          <Toaster />
+        </body>
+      </SessionProvider>
     </html>
   );
 }
