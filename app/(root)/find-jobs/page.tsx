@@ -1,11 +1,11 @@
 import React from 'react'
 
-const Jops = () => {
+const FindJops = () => {
   return (
     <div>
-      
+      find jops
     </div>
   )
 }
 
-export default Jops
+export default FindJops

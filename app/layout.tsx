@@ -3,11 +3,11 @@ import type { Metadata } from "next";
 import { Inter, Geist } from "next/font/google";
 
 import "./globals.css";
-import ThemeProvider from "@/context/Theme";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
+import { ThemeProvider } from "@/context/Theme";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -28,7 +28,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
   const session = await auth();
   return (
     <html
@@ -41,6 +40,13 @@ export default async function RootLayout({
         geist.variable,
       )}
     >
+      <head>
+        <link
+          rel="stylesheet"
+          type="text/css"
+          href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css"
+        />
+      </head>
       <SessionProvider session={session}>
         <body>
           <ThemeProvider
