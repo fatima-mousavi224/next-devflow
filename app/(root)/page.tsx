@@ -1,3 +1,4 @@
+import QuestionCard from "@/components/cards/QuestionCard";
 import HomeFilter from "@/components/filters/HomeFilter";
 import LocalSearch from "@/components/search/LocalSearch";
 import { Button } from "@/components/ui/button";
@@ -13,7 +14,7 @@ const questions = [
       { _id: "1", name: "reactjs" },
       { _id: "2", name: "javascript" },
     ],
-    author: { _id: "1", name: "Sajjad" },
+    author: { _id: "1", name: "Sajjad", image: "https://static.vecteezy.com/system/resources/thumbnails/024/183/502/small/male-avatar-portrait-of-a-young-man-with-a-beard-illustration-of-male-character-in-modern-color-style-vector.jpg" },
     upvotes: 10,
     answers: 5,
     view: 100,
@@ -27,7 +28,7 @@ const questions = [
       { _id: "3", name: "nextjs" },
       { _id: "4", name: "javascript" },
     ],
-    author: { _id: "1", name: "Sajjad" },
+    author: { _id: "1", name: "Sajjad" , image:"https://static.vecteezy.com/system/resources/thumbnails/024/183/502/small/male-avatar-portrait-of-a-young-man-with-a-beard-illustration-of-male-character-in-modern-color-style-vector.jpg"},
     upvotes: 10,
     answers: 5,
     view: 100,
@@ -41,7 +42,12 @@ const questions = [
       { _id: "5", name: "nodejs" },
       { _id: "6", name: "javascript" },
     ],
-    author: { _id: "1", name: "Sajjad" },
+    author: {
+      _id: "1",
+      name: "Sajjad",
+      image:
+        "https://static.vecteezy.com/system/resources/thumbnails/024/183/502/small/male-avatar-portrait-of-a-young-man-with-a-beard-illustration-of-male-character-in-modern-color-style-vector.jpg",
+    },
     upvotes: 10,
     answers: 5,
     view: 100,
@@ -109,7 +115,7 @@ export default function Home({ searchParams }: SearchPrams) {
       <HomeFilter />
       <div className="mt-10 flex w-full flex-col gap-6 ">
         {filteredQuestions.map((question) => (
-          <h1 key={question._id}>{question.title}</h1>
+          <QuestionCard key={question._id} question={question} />
         ))}
       </div>
     </>

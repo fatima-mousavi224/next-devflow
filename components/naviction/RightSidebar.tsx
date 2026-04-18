@@ -5,7 +5,7 @@ import TagCard from "../cards/TagCard";
 
 const hotQuestions = [
   { _id: "1", title: "How to create a React component?" },
-  { _id: "2", title: "What is the difference between useState and useEffect?" },
+  { _id: "2", title: "How to use React hooks?" },
   { _id: "3", title: "How to optimize React performance?" },
   { _id: "4", title: "What is the virtual DOM?" },
   { _id: "5", title: "How to manage state in React?" },
