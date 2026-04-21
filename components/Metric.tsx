@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 interface Props {
-  imgUrl: string;
+  imgUrl: string ;
   alt: string;
   value: number | string;
   title: string;

@@ -55,11 +55,12 @@ const questions = [
   },
 ];
 
+
 interface SearchPrams {
   searchParams: { query?: string | string[]; filter?: string | string[] };
 }
 
-export default function Home({ searchParams }: SearchPrams) {
+export default async function Home({ searchParams }: SearchPrams) {
   const { query = "", filter = "" } = searchParams;
 
   const normalizedQuery =
@@ -113,11 +114,17 @@ export default function Home({ searchParams }: SearchPrams) {
         />
       </section>
       <HomeFilter />
-      <div className="mt-10 flex w-full flex-col gap-6 ">
+      {/* <div className="mt-10 flex w-full flex-col gap-6 ">
         {filteredQuestions.map((question) => (
           <QuestionCard key={question._id} question={question} />
         ))}
-      </div>
+      </div> */}
+
+       <div className="mt-10 flex w-full flex-col gap-6">
+            {questions.map((question) => (
+              <QuestionCard key={question._id} question={question} />
+            ))}
+          </div>
     </>
   );
 }

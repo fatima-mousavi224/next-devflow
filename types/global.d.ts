@@ -13,7 +13,7 @@ interface Question {
     title: string;
     tags: Tag[]; 
     author: Author;
-    createdAt: Date;
+    cretedAt: Date;
     upvotes: number;
     answers: number;
     views: number;
