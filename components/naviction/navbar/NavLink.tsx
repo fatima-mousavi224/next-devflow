@@ -11,9 +11,9 @@ import { cn } from "@/lib/utils";
 
 const NavLinks = ({
   isMobileNav = false,
-  userId,
+  userId
 }: {
-  isMobileNav?: boolean;
+  isMobileNav?: boolean,
   userId?: string;
 }) => {
   const pathname = usePathname();

@@ -35,3 +35,10 @@ type SuccessResponse<T = null> = ActionResponse<T> & {success: true};
 type ErrorResponse = ActionResponse <undefined> & {success: false}
 type ApiErrorResponse = NextResponse<ErrorResponse>;
 type ApiResponse<T = null> = NextResponse<SuccessResponse<T> | ErrorResponse>;
+
+
+interface RouteParams {
+    params: Promise<Record<string, string>>,
+
+    searchParams : Promise<Record<string, string>>;
+}

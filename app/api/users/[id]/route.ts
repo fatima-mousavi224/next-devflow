@@ -54,6 +54,6 @@ export async function PUT(request: Request, {params}: {params: Promise<{id: stri
        const updateUser = await User.findByIdAndUpdate(id, validatedData, {new : true})
        if(!updateUser) throw new NotFoundError("User");
     } catch (error) {
-        
+        return handelError(error, "api") as ApiErrorResponse
     }
 }

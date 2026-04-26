@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { email, z } from "zod";
 export const SignInScheme = z.object({
   email: z
     .string()
@@ -111,3 +111,15 @@ export const AcountSchema = z.object({
     .string()
     .min(1, { message: "Provider acount Id is requierd." }),
 });
+
+
+export const SignInWithSchema = z.object({
+  provider: z.enum(["google", "github"]),
+  providerAcountId: z.string().min(1, {message: "Provider Acount Id is requierd."}),
+  user: z.object({name: z.string().min(1, {message: "Name is requierd"}),
+  username: z.string().min(3, {message: "User name must be at least 3 characters long."}),
+  email: z.string().email({message: "Plase provide a valide email address."}),
+  image: z.string().url("invaild image Url").optional()
+}),
+
+})

@@ -1,20 +1,38 @@
-import React from "react";
 import NavLinks from "./navbar/NavLink";
 import ROUTES from "@/constants/routes";
 import { Button } from "../ui/button";
 import Image from "next/image";
 import Link from "next/link";
+import { auth, signOut } from "@/auth";
+import { LogOut } from "lucide-react";
 
-function LeftSidebar() {
+async function LeftSidebar() {
+  const session = await auth();
+  const userId = session?.user?.id;
   return (
     <section className="custom-scrollbar background-light900_dark200 light-border sticky lift-0 top-0 h-screen flex flex-col justify-between overflow-y-auto border-r p-6 pt-36 shadow-light-300 dark:shadow-none max-sm:hiddin lg:w-66.5">
       <div className="flex flex-1 flex-col gap-6 ">
-        <NavLinks />
+        <NavLinks userId={userId}/>
       </div>
 
       <div className="flex flex-col gap-3">
-         <Button
-              className="small-medium btn-secondary min-h-[41px] w-full rounded-lg px-4 py-3 shadow-none"
+        {userId ? (
+          <form action={async () => {
+            'use server';
+            await signOut;
+          }}>
+            <LogOut className="size-5 text-black dark:text-white" />
+            <Button
+              type="submit"
+              className="base-medium w-fit bg-transparent! px-4 py-3"
+            >
+              <span className="max-lg:hidden text-dark300_light900">Logout</span>
+            </Button>
+          </form>
+        ) : (
+          <>
+            <Button
+              className="small-medium btn-secondary min-h-10.25 w-full rounded-lg px-4 py-3 shadow-none"
               asChild
             >
               <Link href={ROUTES.SIGN_IN}>
@@ -32,7 +50,7 @@ function LeftSidebar() {
             </Button>
 
             <Button
-              className="small-medium light-border-2 btn-tertiary text-dark400_light900 min-h-[41px] w-full rounded-lg border px-4 py-3 shadow-none"
+              className="small-medium light-border-2 btn-tertiary text-dark400_light900 min-h-10.25 w-full rounded-lg border px-4 py-3 shadow-none"
               asChild
             >
               <Link href={ROUTES.SIGN_UP}>
@@ -46,6 +64,8 @@ function LeftSidebar() {
                 <span className="max-lg:hidden">Sign Up</span>
               </Link>
             </Button>
+          </>
+        )}
       </div>
     </section>
   );

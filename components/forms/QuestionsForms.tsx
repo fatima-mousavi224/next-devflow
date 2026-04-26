@@ -1,4 +1,3 @@
-
 "use client";
 
 import { AskQuestionSchema } from "@/lib/validations";
@@ -8,11 +7,16 @@ import { Form, FormControl, FormDescription } from "../ui/form";
 import { Field, FieldError, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { useRef } from "react";
+import { useRef, useTransition } from "react";
 import { MDXEditorMethods } from "@mdxeditor/editor";
 import dynamic from "next/dynamic";
 import { z } from "zod";
 import TagCard from "../cards/TagCard";
+import { createQuestion } from "@/lib/actions/question.action";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import ROUTES from "@/constants/routes";
+import { RefreshCw } from "lucide-react";
 
 // ⚠️ keep same file name if you didn't rename it
 const Editor = dynamic(() => import("@/components/edietor"), {
@@ -21,6 +25,8 @@ const Editor = dynamic(() => import("@/components/edietor"), {
 
 const QuestionsForms = () => {
   const editorRef = useRef<MDXEditorMethods>(null);
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
   const form = useForm<z.infer<typeof AskQuestionSchema>>({
     resolver: zodResolver(AskQuestionSchema),
@@ -34,7 +40,7 @@ const QuestionsForms = () => {
   // ✅ TAG INPUT
   const handleInputKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement>,
-    field: { value: string[] }
+    field: { value: string[] },
   ) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -71,10 +77,7 @@ const QuestionsForms = () => {
   };
 
   // ✅ REMOVE TAG
-  const handleTagRemove = (
-    tag: string,
-    field: { value: string[] }
-  ) => {
+  const handleTagRemove = (tag: string, field: { value: string[] }) => {
     const newTags = field.value.filter((t) => t !== tag);
     form.setValue("tags", newTags);
 
@@ -87,10 +90,22 @@ const QuestionsForms = () => {
   };
 
   // ✅ SUBMIT
-  const handleCreateQuestion = (
-    data: z.infer<typeof AskQuestionSchema>
+  const handleCreateQuestion = async (
+    data: z.infer<typeof AskQuestionSchema>,
   ) => {
-    console.log(data);
+    startTransition(async () => {
+      const result = await createQuestion(data);
+
+      if (result.status) {
+        toast.success("questions create successfuly");
+
+        if (result.data) {
+          router.push(ROUTES.QUESTION(result.data?._id));
+        } else {
+          toast.error("Something went wrong");
+        }
+      }
+    });
   };
 
   return (
@@ -109,8 +124,7 @@ const QuestionsForms = () => {
               className="flex w-full flex-col"
             >
               <FieldLabel className="paragraph-semibold text-dark400_light800">
-                Question Title{" "}
-                <span className="text-primary-500">*</span>
+                Question Title <span className="text-primary-500">*</span>
               </FieldLabel>
 
               <Input
@@ -142,8 +156,7 @@ const QuestionsForms = () => {
               className="flex w-full flex-col"
             >
               <FieldLabel className="paragraph-semibold text-dark400_light800">
-                Detailed explanation{" "}
-                <span className="text-primary-500">*</span>
+                Detailed explanation <span className="text-primary-500">*</span>
               </FieldLabel>
 
               <FormControl>
@@ -187,9 +200,7 @@ const QuestionsForms = () => {
                 <Input
                   className="paragraph-regular background-light700_dark300 light-border-2 text-dark300_light700 no-focus min-h-14 border"
                   placeholder="Add tags ..."
-                  onKeyDown={(e) =>
-                    handleInputKeyDown(e, field)
-                  }
+                  onKeyDown={(e) => handleInputKeyDown(e, field)}
                 />
 
                 {field.value.length > 0 && (
@@ -202,9 +213,7 @@ const QuestionsForms = () => {
                         compact
                         remove
                         isButton
-                        handleRemove={() =>
-                          handleTagRemove(tag, field)
-                        }
+                        handleRemove={() => handleTagRemove(tag, field)}
                       />
                     ))}
                   </div>
@@ -218,7 +227,8 @@ const QuestionsForms = () => {
               )}
 
               <FormDescription className="body-regular mt-2.5 text-light-500">
-                Add up to 3 tags to describe your question. Press Enter after each tag.
+                Add up to 3 tags to describe your question. Press Enter after
+                each tag.
               </FormDescription>
             </Field>
           )}
@@ -228,9 +238,17 @@ const QuestionsForms = () => {
         <div className="mt-16 flex justify-end">
           <Button
             type="submit"
+            disabled={isPending}
             className="primary-gradient text-light-900 w-fit"
           >
-            Ask a Question
+            {isPending ? (
+              <>
+                <RefreshCw className="mr-2 size-2 animate-spin" />
+                <span>Submitting</span>
+              </>
+            ) : (
+              <> Ask a Question</>
+            )}
           </Button>
         </div>
       </form>
