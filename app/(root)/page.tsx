@@ -1,114 +1,36 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import QuestionCard from "@/components/cards/QuestionCard";
+import DataRender from "@/components/DataRender";
 import HomeFilter from "@/components/filters/HomeFilter";
 import LocalSearch from "@/components/search/LocalSearch";
 import { Button } from "@/components/ui/button";
 import ROUTES from "@/constants/routes";
+import { EMPTY_QUESTIONS } from "@/constants/states";
+import { getQuestions } from "@/lib/actions/question.action";
+import { Divide } from "lucide-react";
 import Link from "next/link";
-
-const questions = [
-  {
-    _id: "1",
-    title: "How to learn react?",
-    description: "I am new to react and I want to learn it. Can you help me?",
-    tags: [
-      { _id: "1", name: "reactjs" },
-      { _id: "2", name: "javascript" },
-    ],
-    author: {
-      _id: "1",
-      name: "Sajjad",
-      image:
-        "https://static.vecteezy.com/system/resources/thumbnails/024/183/502/small/male-avatar-portrait-of-a-young-man-with-a-beard-illustration-of-male-character-in-modern-color-style-vector.jpg",
-    },
-    upvotes: 10,
-    answers: 5,
-    views: 100,
-    createdAt: new Date(),
-  },
-  {
-    _id: "2",
-    title: "How to learn next?",
-    description: "I am new to next and I want to learn it. Can you help me?",
-    tags: [
-      { _id: "3", name: "nextjs" },
-      { _id: "4", name: "javascript" },
-    ],
-    author: {
-      _id: "1",
-      name: "Sajjad",
-      image:
-        "https://static.vecteezy.com/system/resources/thumbnails/024/183/502/small/male-avatar-portrait-of-a-young-man-with-a-beard-illustration-of-male-character-in-modern-color-style-vector.jpg",
-    },
-    upvotes: 10,
-    answers: 5,
-    views: 100,
-    createdAt: new Date(),
-  },
-  {
-    _id: "3",
-    title: "How to learn node?",
-    description: "I am new to node and I want to learn it. Can you help me?",
-    tags: [
-      { _id: "5", name: "nodejs" },
-      { _id: "6", name: "javascript" },
-    ],
-    author: {
-      _id: "1",
-      name: "Sajjad",
-      image:
-        "https://static.vecteezy.com/system/resources/thumbnails/024/183/502/small/male-avatar-portrait-of-a-young-man-with-a-beard-illustration-of-male-character-in-modern-color-style-vector.jpg",
-    },
-    upvotes: 10,
-    answers: 5,
-    views: 100,
-    createdAt: new Date(),
-  },
-];
 
 interface SearchParams {
   searchParams?: {
-    query?: string | string[];
-    filter?: string | string[];
+    page?: string;
+    pageSize?: string;
+    query?: string;
+    filter?: string;
   };
 }
 
 export default async function Home({ searchParams }: SearchParams) {
-  const params = await searchParams; // 👈 این خط جادویی
+  const params = await searchParams;
+  const { page, pageSize, query, filter } = params || {};
 
-  const { query = "", filter = "" } = params || {};
-
-  const normalizedQuery =
-    typeof query === "string"
-      ? query
-      : Array.isArray(query)
-        ? query.join(" ")
-        : "";
-
-  const normalizedFilter =
-    typeof filter === "string"
-      ? filter
-      : Array.isArray(filter)
-        ? filter.join(" ")
-        : "";
-
-        
-  const filteredQuestions = questions.filter((question) => {
-    const queryMatch =
-      !normalizedQuery ||
-      question.title.toLowerCase().includes(normalizedQuery.toLowerCase()) ||
-      question.description
-        .toLowerCase()
-        .includes(normalizedQuery.toLowerCase());
-
-    const filterMatch =
-      !normalizedFilter ||
-      question.tags.some((tag) =>
-        tag.name.toLowerCase().includes(normalizedFilter.toLowerCase()),
-      );
-
-    return queryMatch && filterMatch;
+  const { success, data, error } = await getQuestions({
+    page: Number(page) || 1,
+    pageSize: Number(pageSize) || 10,
+    query: query || "",
+    filter: filter || "",
   });
 
+  const questions = data?.questions || [];
   return (
     <>
       {/* Header */}
@@ -130,22 +52,25 @@ export default async function Home({ searchParams }: SearchParams) {
           placeholder="Search questions..."
           otherClasses="flex-1"
           route="/"
+          iconPosition="left"
         />
       </section>
 
       {/* Filter */}
       <HomeFilter />
-
-      {/* Questions */}
-      <div className="mt-10 flex w-full flex-col gap-6">
-        {filteredQuestions.length > 0 ? (
-          filteredQuestions.map((question) => (
-            <QuestionCard key={question._id} question={question} />
-          ))
-        ) : (
-          <p className="text-center text-gray-500">No questions found 🫠</p>
+      <DataRender
+        success={success}
+        error={error}
+        data={questions}
+        empty={EMPTY_QUESTIONS}
+        render={(questions) => (
+          <div className="mt-10 flex w-full flex-col gap-6">
+            {questions.map((question) => (
+              <QuestionCard key={question._id} question={question} />
+            ))}
+          </div>
         )}
-      </div>
+      />
     </>
   );
 }

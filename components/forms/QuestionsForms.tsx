@@ -12,18 +12,24 @@ import { MDXEditorMethods } from "@mdxeditor/editor";
 import dynamic from "next/dynamic";
 import { z } from "zod";
 import TagCard from "../cards/TagCard";
-import { createQuestion } from "@/lib/actions/question.action";
+import { createQuestion, editQuestion } from "@/lib/actions/question.action";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import ROUTES from "@/constants/routes";
 import { RefreshCw } from "lucide-react";
+import { Questions } from "@/types/global";
 
 // ⚠️ keep same file name if you didn't rename it
 const Editor = dynamic(() => import("@/components/edietor"), {
   ssr: false,
 });
 
-const QuestionsForms = () => {
+interface Params {
+  question?: Questions,
+  isEdit?: boolean;
+}
+
+const QuestionsForms = ({question, isEdit = false}: Params) => {
   const editorRef = useRef<MDXEditorMethods>(null);
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -31,9 +37,9 @@ const QuestionsForms = () => {
   const form = useForm<z.infer<typeof AskQuestionSchema>>({
     resolver: zodResolver(AskQuestionSchema),
     defaultValues: {
-      title: "",
-      content: "",
-      tags: [],
+      title: question?.title || "",
+       content: question?.content || "",
+      tags: question?.tags.map((tag) => tag.name) || [],
     },
   });
 
@@ -94,6 +100,21 @@ const QuestionsForms = () => {
     data: z.infer<typeof AskQuestionSchema>,
   ) => {
     startTransition(async () => {
+      if(isEdit && question) {
+        const result = await editQuestion({questionId: question?._id, ...data});
+        
+
+         if (result.success) {
+        toast.success("questions create successfuly")};
+
+       if (result.data) {
+          router.push(ROUTES.QUESTION(result.data?._id));
+        } else {
+          toast.error("Something went wrong");
+        }
+        return;
+      }
+      
       const result = await createQuestion(data);
 
       if (result.status) {
@@ -139,7 +160,7 @@ const QuestionsForms = () => {
               )}
 
               <FormDescription className="body-regular mt-2.5 text-light-500">
-                Be specific and imagine you're asking a question to another
+                Be specific and imagine you&apos;re asking a question to another
                 person.
               </FormDescription>
             </Field>
@@ -160,7 +181,7 @@ const QuestionsForms = () => {
               </FieldLabel>
 
               <FormControl>
-                <div className="min-h-[200px]">
+                <div className="min-h-50">
                   <Editor
                     editorRef={editorRef}
                     value={field.value}
@@ -247,7 +268,7 @@ const QuestionsForms = () => {
                 <span>Submitting</span>
               </>
             ) : (
-              <> Ask a Question</>
+              <> {isEdit ? "Edit" : "Ask a Question"}</>
             )}
           </Button>
         </div>

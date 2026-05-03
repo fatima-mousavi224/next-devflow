@@ -19,14 +19,15 @@ async function LeftSidebar() {
         {userId ? (
           <form action={async () => {
             'use server';
-            await signOut;
+            await signOut();
           }}>
-            <LogOut className="size-5 text-black dark:text-white" />
+            
             <Button
               type="submit"
-              className="base-medium w-fit bg-transparent! px-4 py-3"
+              className="base-medium w-fit bg-transparent! px-6 py-3"
             >
-              <span className="max-lg:hidden text-dark300_light900">Logout</span>
+            <LogOut className="size-5 text-black dark:text-white pr-6"/>
+              <span className="max-lg:hidden text-dark300_light900 text-lg">Logout</span>
             </Button>
           </form>
         ) : (

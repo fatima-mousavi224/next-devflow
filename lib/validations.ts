@@ -55,7 +55,7 @@ export const AskQuestionSchema = z.object({
     .min(1, { message: "Title is required." })
     .max(150, { message: "Title cannot exceed 150 characters." }),
 
-  Content: z.string().min(1, { message: "Body is required." }),
+   content: z.string().min(1, { message: "Body is required." }),
   tags: z
     .array(
       z
@@ -122,4 +122,20 @@ export const SignInWithSchema = z.object({
   image: z.string().url("invaild image Url").optional()
 }),
 
+})
+
+export const EditQuestionSchema = AskQuestionSchema.extend({
+  questionId: z.string().min(1, {message: "Question ID is requierd."})
+})
+
+export const GetQuestionSchema = z.object({
+  questionId: z.string().min(1, {message: "Question Id is Requierd"})
+})
+
+export const PaginatedSearchParamsSchema = z.object({
+  page: z.number().int().positive().default(1),
+  pageSize: z.number().int().positive().default(10),
+  query: z.string().optional(),
+  filter: z.string().optional(),
+  sort: z.string().optional()
 })

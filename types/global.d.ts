@@ -10,7 +10,7 @@ interface Author {
     name: string;
     image?: string;
 }
-interface Question {
+interface Questions {
     _id: string;
     title: string;
     tags: Tag[]; 
@@ -19,6 +19,8 @@ interface Question {
     upvotes: number;
     answers: number;
     views: number;
+    content: string;
+
 }
 
 type ActionResponse<T = null> = {
@@ -41,4 +43,13 @@ interface RouteParams {
     params: Promise<Record<string, string>>,
 
     searchParams : Promise<Record<string, string>>;
+}
+
+
+interface PaginatedSearchParams {
+    page?: number,
+    pageSize?: number,
+    query?: string,
+    filter?: string,
+    sort?: string
 }

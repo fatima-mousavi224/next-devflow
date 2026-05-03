@@ -31,14 +31,14 @@ export default async function RootLayout({
   const session = await auth();
   return (
     <html
-      lang="en"
-      className={cn(
-        "antialiased",
-        "suppressHydrationWarning",
-        inter.className,
-        "font-sans",
-        geist.variable,
-      )}
+     lang="en"
+  suppressHydrationWarning // <--- این باید اینجا باشد، بیرون از className
+  className={cn(
+    "antialiased",
+    inter.className,
+    "font-sans",
+    geist.variable,
+  )}
     >
       <head>
         <link
