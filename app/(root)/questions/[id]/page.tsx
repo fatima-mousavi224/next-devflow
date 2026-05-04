@@ -1,9 +1,11 @@
+import AllAnswers from "@/components/answers/AllAnswers";
 import TagCard from "@/components/cards/TagCard";
 import Preview from "@/components/edietor/Preview";
 import AnswerForm from "@/components/forms/AnswerForm";
 import Metric from "@/components/Metric";
 import UserAvatar from "@/components/UserAvatar";
 import ROUTES from "@/constants/routes";
+import { getAnswers } from "@/lib/actions/answer.action";
 import { getQuestion, incrementViews } from "@/lib/actions/question.action";
 import { getTimeStamp } from "@/lib/utils";
 import { RouteParams, Tag } from "@/types/global";
@@ -20,6 +22,16 @@ const QuestionDetails = async ({ params }: RouteParams) => {
   });
 
   if (!success || !question) return redirect("/404");
+  const {
+    success: areAnswerLoaded,
+    data: answersResult,
+    error: answersError,
+  } = await getAnswers({
+    questionId: id,
+    page: 1,
+    pageSize: 10,
+    filter: "latest",
+  });
   const { author, cretedAt, answers, views, tags, content, title } = question;
 
   return (
@@ -85,7 +97,16 @@ const QuestionDetails = async ({ params }: RouteParams) => {
       </div>
 
       <section className="my-5">
-        <AnswerForm />
+        <AllAnswers
+          data={answersResult?.answer}
+          success={areAnswerLoaded}
+          error={answersError}
+          totalAnswers={answersResult?.totalAnswer || 0}
+        />
+      </section>
+
+      <section className="my-5">
+        <AnswerForm questionId={question._id} />
       </section>
     </>
   );

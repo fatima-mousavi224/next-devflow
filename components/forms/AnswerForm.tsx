@@ -8,7 +8,7 @@ import {
   SubmitHandler,
   useForm,
 } from "react-hook-form";
-import { toast } from "sonner";
+import { toast, Toaster } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -20,18 +20,19 @@ import { AnswerSchema } from "@/lib/validations";
 import z, { ZodType } from "zod";
 import ROUTES from "@/constants/routes";
 import { ActionResponse } from "@/types/global";
-import { useRef, useState } from "react";
+import { useRef, useState, useTransition } from "react";
 import { FormControl, FormField, FormItem, FormMessage } from "../ui/form";
 import Edietor from "../edietor";
 import dynamic from "next/dynamic";
 import { MDXEditorMethods } from "@mdxeditor/editor";
 import { Loader } from "lucide-react";
 import Image from "next/image";
+import { createAnswer } from "@/lib/actions/answer.action";
 
 const Editor = dynamic(() => import("@/components/edietor"), { ssr: false });
 
-const AnswerForm = () => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+const AnswerForm = ({ questionId }: { questionId: string }) => {
+  const [isAnswer, startAnsweringTransition] = useTransition();
   const [isAISubmitting, setIsAISubmitting] = useState(false);
   const editorRef = useRef<MDXEditorMethods>(null);
   const form = useForm<z.infer<typeof AnswerSchema>>({
@@ -40,23 +41,46 @@ const AnswerForm = () => {
   });
 
   const handleSubmit = async (values: z.infer<typeof AnswerSchema>) => {
-    console.log(values);
+    startAnsweringTransition(async () => {
+      const result = await createAnswer({
+        questionId,
+        content: values.content,
+      });
+
+      if (result.success) {
+        form.reset();
+        toast.success("Your answer has been posted successfully");
+      } else {
+        toast.error("Your answer has been failed.");
+      }
+    });
   };
 
   return (
     <div className="w-full">
       <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center sm:gap-2 ">
-        <h4 className="paragraph-semibold text-dark400_light800">Write your answer here</h4>
-        <Button className="btn light-border-2 gap-1.5 rounded-md border px-4 py-2.5 text-primary-500 shadow-none dark:text-primary-500" disabled={isAISubmitting}>
+        <h4 className="paragraph-semibold text-dark400_light800">
+          Write your answer here
+        </h4>
+        <Button
+          className="btn light-border-2 gap-1.5 rounded-md border px-4 py-2.5 text-primary-500 shadow-none dark:text-primary-500"
+          disabled={isAISubmitting}
+        >
           {isAISubmitting ? (
             <>
               <Loader className="mr-2 size-4 animate-spin" /> Generating...
             </>
           ) : (
-           <>
-           <Image src="/icons/stars.svg" alt="Genrate Ai answer" width={12} height={12} className="object-contain"/>
-           Generate AI Answer
-           </>
+            <>
+              <Image
+                src="/icons/stars.svg"
+                alt="Genrate Ai answer"
+                width={12}
+                height={12}
+                className="object-contain"
+              />
+              Generate AI Answer
+            </>
           )}
         </Button>
       </div>
@@ -84,7 +108,7 @@ const AnswerForm = () => {
 
         <div className="flex justify-end">
           <Button type="submit" className="primary-gradient w-fit">
-            {isSubmitting ? (
+            {isAISubmitting ? (
               <>
                 <Loader className="mr-2 size-4 animate-spin" /> Posting...
               </>
