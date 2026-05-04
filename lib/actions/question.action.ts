@@ -1,14 +1,32 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 
-import { ActionResponse, ErrorResponse, PaginatedSearchParams, Questions } from "@/types/global";
+import {
+  ActionResponse,
+  ErrorResponse,
+  PaginatedSearchParams,
+  Questions,
+} from "@/types/global";
 import action from "../handlers/action";
-import { AskQuestionSchema, EditQuestionSchema, GetQuestionSchema, PaginatedSearchParamsSchema } from "../validations";
+import {
+  AskQuestionSchema,
+  EditQuestionSchema,
+  GetQuestionSchema,
+  IncrementViewsSchema,
+  PaginatedSearchParamsSchema,
+} from "../validations";
 import handelError from "../handlers/error";
 import mongoose, { Error, FilterQuery } from "mongoose";
 import Question, { IQuestionDoc } from "@/database/question.model";
 import Tag, { ITagDoc } from "@/database/tag.model";
 import TagQuestion from "@/database/tag-question.model";
 import dbConnect from "../mongoose";
+import {
+  CreateQuestionParams,
+  EditQuestionParams,
+  GetQuestionParmas,
+  IncrementViewsParams,
+} from "@/types/action";
 
 export async function createQuestion(
   params: CreateQuestionParams,
@@ -93,7 +111,7 @@ export async function createQuestion(
 }
 
 export async function editQuestion(
-  params: EditQuestionParams
+  params: EditQuestionParams,
 ): Promise<ActionResponse<IQuestionDoc>> {
   const validationResult = await action({
     params,
@@ -129,15 +147,14 @@ export async function editQuestion(
     }
 
     const tagsToAdd = tags.filter(
-      (tag: ITagDoc) =>
+      (tag: any) =>
         !question.tags.some((t: ITagDoc) =>
-          t.name.toLowerCase().includes(tag.toLowerCase())
-        )
+          t.name.toLowerCase().includes(tag.toLowerCase()),
+        ),
     );
-
     const tagsToRemove = question.tags.filter(
       (tag: ITagDoc) =>
-        !tags.some((t) => t.toLowerCase() === tag.name.toLowerCase())
+        !tags.some((t: any) => t.toLowerCase() === tag.name.toLowerCase()),
     );
 
     const newTagDocuments = [];
@@ -147,7 +164,7 @@ export async function editQuestion(
         const existingTag = await Tag.findOneAndUpdate(
           { name: { $regex: `^${tag}$`, $options: "i" } },
           { $setOnInsert: { name: tag }, $inc: { questions: 1 } },
-          { upsert: true, new: true, session }
+          { upsert: true, new: true, session },
         );
 
         if (existingTag) {
@@ -167,19 +184,19 @@ export async function editQuestion(
       await Tag.updateMany(
         { _id: { $in: tagIdsToRemove } },
         { $inc: { questions: -1 } },
-        { session }
+        { session },
       );
 
       await TagQuestion.deleteMany(
         { tag: { $in: tagIdsToRemove }, question: questionId },
-        { session }
+        { session },
       );
 
       question.tags = question.tags.filter(
         (tag: mongoose.Types.ObjectId) =>
           !tagIdsToRemove.some((id: mongoose.Types.ObjectId) =>
-            id.equals(tag._id)
-          )
+            id.equals(tag._id),
+          ),
       );
     }
 
@@ -212,23 +229,25 @@ export async function getQuestion(
     return handelError(validationResult) as ErrorResponse;
   }
 
-  const {questionId } = validationResult.params!;
+  const { questionId } = validationResult.params!;
 
-    try {
-      const question = await Question.findById(questionId).populate("tags");
+  try {
+    const question = await Question.findById(questionId)
+      .populate("tags")
+      .populate("author", "_id name image");
 
-      if(!question) {
-        throw new Error("Question Not Found")
-      }
-
-      return {success : true, data: JSON.parse(JSON.stringify(question))}
-    } catch (error) {
-      return handelError(error) as ErrorResponse;
+    if (!question) {
+      throw new Error("Question Not Found");
     }
+
+    return { success: true, data: JSON.parse(JSON.stringify(question)) };
+  } catch (error) {
+    return handelError(error) as ErrorResponse;
+  }
 }
 
 export async function getQuestions(
-  params: PaginatedSearchParams
+  params: PaginatedSearchParams,
 ): Promise<ActionResponse<{ questions: Questions[]; isNext: boolean }>> {
   const validationResult = await action({
     params,
@@ -291,6 +310,38 @@ export async function getQuestions(
       success: true,
       data: { questions: JSON.parse(JSON.stringify(questions)), isNext },
     };
+  } catch (error) {
+    return handelError(error) as ErrorResponse;
+  }
+}
+
+export async function incrementViews(
+  params: IncrementViewsParams,
+): Promise<ActionResponse<{ views: number }>> {
+  const validationResult = await action({
+    params,
+    schema: IncrementViewsSchema,
+  });
+
+  if (validationResult instanceof Error) {
+    return handelError(validationResult) as ErrorResponse;
+  }
+
+  const { questionId } = validationResult.params!;
+  try {
+    const question = await Question.findById(questionId);
+    if (!question) {
+      throw new Error("Question not found");
+    }
+
+    question.views += 1;
+
+    await question.save();
+
+    return {
+      success: true,
+      data: {views: question.views}
+    }
   } catch (error) {
     return handelError(error) as ErrorResponse;
   }

@@ -12,7 +12,7 @@ import { MDXEditorMethods } from "@mdxeditor/editor";
 import dynamic from "next/dynamic";
 import { z } from "zod";
 import TagCard from "../cards/TagCard";
-import { createQuestion, editQuestion } from "@/lib/actions/question.action";
+import { createQuestion, editQuestion} from "@/lib/actions/question.action";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import ROUTES from "@/constants/routes";
@@ -117,7 +117,7 @@ const QuestionsForms = ({question, isEdit = false}: Params) => {
       
       const result = await createQuestion(data);
 
-      if (result.status) {
+      if (result.success) {
         toast.success("questions create successfuly");
 
         if (result.data) {

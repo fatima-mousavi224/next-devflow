@@ -2,13 +2,14 @@ import Link from "next/link";
 import React from "react";
 
 import ROUTES from "@/constants/routes";
-import { getTimeStamp } from "@/lib/utils";
+import { formatNumber, getTimeStamp } from "@/lib/utils";
 
 import TagCard from "./TagCard";
 import Metric from "../Metric";
+import { Questions, Tag } from "@/types/global";
 
 interface Props {
-  question: Question;
+  question: Questions;
 }
 
 const QuestionCard = ({
@@ -65,7 +66,7 @@ const QuestionCard = ({
           <Metric
             imgUrl="/icons/eye.svg"
             alt="views"
-            value={views}
+            value={formatNumber(views)}
             title=" Views"
             textStyles="small-medium text-dark400_light800"
           />
